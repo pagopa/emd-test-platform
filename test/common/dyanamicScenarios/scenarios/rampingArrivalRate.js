@@ -21,7 +21,7 @@ export default {
 }
 
 function setStages(timeUnit, stageNumber, maxStageVu) {
-    const arr = new Array(stageNumber)
+    const arr = new Array(stageNumber).fill(null).map(() => ({}))
     for (let i = 0; i < stageNumber; i++) {
         let stageVu
         if (i == stageNumber - 1) {
