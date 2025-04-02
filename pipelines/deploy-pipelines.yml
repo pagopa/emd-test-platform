@@ -104,6 +104,13 @@ variables:
     - name: SCRIPTS_TO_EXECUTE
       value: ${{ variables[format('k6Test_{0}', parameters.SCRIPT)] }}
 
+    - ${{ if eq(parameters.TARGET_ENV, 'dev') }}:
+          - name: selfHostedAgentPool
+            value: cstar-dev-perf-linux
+    - ${{ else }}:
+          - name: selfHostedAgentPool
+            value: cstar-uat-perf-linux
+
     - name: xk6CacheKey
       value: '"xk6" | "0.45.1" | dotenv'
 
@@ -174,10 +181,6 @@ jobs:
                           USE_INTERNAL_ACCESS_ENV: ${{ parameters.USE_INTERNAL_ACCESS_ENV }}
                           SCRIPT_ENV: ${{ parameters.SCRIPT }}
                           MAX_AVAILABLE_TEST_ENTITIES_ENV: ${{ parameters.MAX_AVAILABLE_TEST_ENTITIES_ENV }}
-
-                          INITIATIVE_ID: ${{ parameters.INITIATIVE_ID }}
-                          ACQUIRER_ID: ${{ parameters.ACQUIRER_ID }}
-                          MERCHANT_FISCALCODE: ${{ parameters.MERCHANT_FISCALCODE }}
 
                           SCENARIO_TIME_UNIT_ENV: ${{ parameters.SCENARIO_TIME_UNIT_ENV }}
                           SCENARIO_RAMP_STAGE_NUMBER_ENV: ${{ parameters.SCENARIO_RAMP_STAGE_NUMBER_ENV }}
