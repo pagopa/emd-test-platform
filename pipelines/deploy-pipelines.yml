@@ -1,0 +1,224 @@
+# Run Automated Test in UAT environment
+
+trigger: none
+
+pool:
+    vmImage: ubuntu-22.04
+
+parameters:
+    - name: 'TARGET_ENV'
+      displayName: 'Target Environment'
+      type: string
+      default: 'uat'
+      values:
+          - 'dev'
+          - 'uat'
+ 
+    - name: 'USE_INTERNAL_ACCESS_ENV'
+      displayName: 'Internal access to k8s services'
+      type: boolean
+      default: false
+
+    - name: 'SCRIPT'
+      displayName: 'Script name'
+      type: string
+      default: 'sendMessageOK'
+      values:
+          - sendMessageOK
+
+    - name: 'SCENARIO_TYPE_ENV'
+      displayName: 'Scenario type'
+      type: string
+      default: 'perVuIterations'
+      values:
+          - 'perVuIterations'
+          - 'constantArrivalRate'
+          - 'rampingArrivalRate'
+          - 'rampingGrowingArrivalRate'
+
+    - name: 'MAX_AVAILABLE_TEST_ENTITIES_ENV'
+      displayName: 'Number of fiscal codes generated'
+      type: number
+    - name: 'VUS_MAX_ENV'
+      displayName: 'Maximum number of virtual users (or max TPS), [constantArrivalRate] MaxRate'
+      type: number
+
+    - name: 'SCENARIO_PER_VU_SINGLE_ITERATION_ENV'
+      displayName: '[perVuIterations] Run one single scenario, otherwise it will run multiple iteration until consume all the fiscal codes'
+      type: string
+      default: 'false'
+    - name: 'SCENARIO_PER_VU_EXECUTIONS_ENV'
+      displayName: '[perVuIterations] Number of execution per iteration'
+      type: number
+      default: 1
+    - name: 'SCENARIO_DURATION_ENV'
+      displayName: '[perVuIterations][constantArrivalRate] Duration in seconds of the scenario'
+      type: number
+      default: 10
+
+    - name: 'SCENARIO_TIME_UNIT_ENV'
+      displayName: '[constantArrivalRate][rampingArrivalRate][rampingGrowingArrivalRate] timeUnit'
+      type: number
+      default: 1
+
+    - name: 'SCENARIO_RAMP_STAGE_NUMBER_ENV'
+      displayName: '[rampingArrivalRate][rampingGrowingArrivalRate] Stage number, the duration of each is given by timeUnit'
+      type: number
+      default: 10
+
+    - name: 'THRESHOLDS_API_MAX_AVG_MS_ENV'
+      displayName: 'Max AVG milliseconds applied as default to single API tests'
+      type: number
+      default: 500
+    - name: 'THRESHOLDS_API_MAX_P90_MS_ENV'
+      displayName: 'Max P90 milliseconds applied as default to single API tests'
+      type: number
+      default: 800
+    - name: 'THRESHOLDS_API_MAX_P95_MS_ENV'
+      displayName: 'Max P95 milliseconds applied as default to single API tests'
+      type: number
+      default: 1000
+    - name: 'WAIT_ONBOARDING_SECONDS'
+      displayName: 'Time in seconds to wait before wallet presence check. Useful with Payments or test which depends on onboarding (emdVerifyOnboarding)'
+      type: number
+      default: 60
+
+variables:
+    # Python version: 3.10
+    - name: pythonVersion
+      value: '3.10'
+
+    # Folder name of this sub-repository
+    - name: working-dir
+      value: '.'
+
+    # Project root folder
+    - name: projectRoot
+      value: $(System.DefaultWorkingDirectory)/$(working-dir)
+
+    # comma separated list of tests to execute based on the SCRIPT parameter
+    - name: k6Test_sendMessageOK
+      value: sendMessageOK
+
+    # resolved list of k6 script to execute
+    - name: SCRIPTS_TO_EXECUTE
+      value: ${{ variables[format('k6Test_{0}', parameters.SCRIPT)] }}
+
+    - name: xk6CacheKey
+      value: '"xk6" | "0.45.1" | dotenv'
+
+jobs:
+    - template: templates\xk6-build.yml
+      parameters:
+          xk6CacheKey: '$(xk6CacheKey)'
+          k6Version: v0.45.1
+
+    - template: templates\job-type-switch.yml
+      parameters:
+          name: PerformanceTest
+          displayName: 'Executing ${{ parameters.SCRIPT }} on ${{ parameters.TARGET_ENV }} (internal access: ${{ parameters.USE_INTERNAL_ACCESS_ENV }})'
+          timeoutInMinutes: 0
+          continueOnError: true
+          dependsOn: xk6Build
+
+          isDeployment: ${{ parameters.USE_INTERNAL_ACCESS_ENV }}
+          deploymentPoolName: $(selfHostedAgentPool)
+          deploymentEnvironment: '${{ upper(parameters.TARGET_ENV) }}'
+          steps:
+              - task: UsePythonVersion@0
+                inputs:
+                    versionSpec: '$(pythonVersion)'
+                displayName: 'Use Python $(pythonVersion)'
+
+              - task: DownloadSecureFile@1
+                name: emd_secrets
+                displayName: 'Download EMD secrets'
+                inputs:
+                  secureFile: 'emd_performance_secrets_${{ parameters.TARGET_ENV }}.env'
+
+              - script: |
+                    docker info | grep -i mem
+                displayName: Display Docker Memory Info
+
+              - script: |
+                    python -m venv .venv
+                    source .venv/bin/activate
+                    python -m pip install --upgrade pip
+                workingDirectory: $(projectRoot)
+                displayName: 'Install CLI requirements'
+
+              - script: |
+                    curl -L https://github.com/pagopa/cstar-cli/archive/refs/heads/main.zip -o cstar-cli.zip
+                    unzip cstar-cli.zip
+                    cd cstar-cli-main
+                    pip install -r ../requirements.txt
+                    pip install --force-reinstall src/cstar-cli-core
+                    pip install --no-deps --force-reinstall src/cstar-cli
+                displayName: Set environment 
+             
+        
+              - task: Cache@2
+                inputs:
+                    key: '$(xk6CacheKey)'
+                    path: '$(Build.SourcesDirectory)'
+                displayName: Retrieve xk6 from Cache
+
+              - ${{ each k6Test in split(variables.SCRIPTS_TO_EXECUTE, ',') }}:
+                    - script: ./xk6 run ./test/performance/emd/${{k6Test}}.js -e SECRETS_FILE_PATH=$(emd_secrets.secureFilePath)
+                      env:
+                          RESULTS_DIR: '.'
+                          CSV_DELIMITER: ';'
+                          ENABLE_FILE_WRITING: true
+
+                          TARGET_ENV: ${{ parameters.TARGET_ENV }}
+                          USE_INTERNAL_ACCESS_ENV: ${{ parameters.USE_INTERNAL_ACCESS_ENV }}
+                          SCRIPT_ENV: ${{ parameters.SCRIPT }}
+                          MAX_AVAILABLE_TEST_ENTITIES_ENV: ${{ parameters.MAX_AVAILABLE_TEST_ENTITIES_ENV }}
+
+                          INITIATIVE_ID: ${{ parameters.INITIATIVE_ID }}
+                          ACQUIRER_ID: ${{ parameters.ACQUIRER_ID }}
+                          MERCHANT_FISCALCODE: ${{ parameters.MERCHANT_FISCALCODE }}
+
+                          SCENARIO_TIME_UNIT_ENV: ${{ parameters.SCENARIO_TIME_UNIT_ENV }}
+                          SCENARIO_RAMP_STAGE_NUMBER_ENV: ${{ parameters.SCENARIO_RAMP_STAGE_NUMBER_ENV }}
+
+                          WAIT_ONBOARDING_SECONDS: ${{ parameters.WAIT_ONBOARDING_SECONDS }}
+
+                          ${{ if eq(k6Test, parameters.SCRIPT) }}:
+                              SCENARIO_TYPE_ENV: ${{ parameters.SCENARIO_TYPE_ENV }}
+                              VUS_MAX_ENV: ${{ parameters.VUS_MAX_ENV }}
+                              SCENARIO_PER_VU_RAMPING_SIZE: 'true'
+                              SCENARIO_PER_VU_SINGLE_ITERATION_ENV: ${{ parameters.SCENARIO_PER_VU_SINGLE_ITERATION_ENV }}
+                              SCENARIO_PER_VU_EXECUTIONS_ENV: ${{ parameters.SCENARIO_PER_VU_EXECUTIONS_ENV }}
+                              SCENARIO_DURATION_ENV: ${{ parameters.SCENARIO_DURATION_ENV }}
+                              THRESHOLDS_API_MAX_AVG_MS_ENV: ${{ parameters.THRESHOLDS_API_MAX_AVG_MS_ENV }}
+                              THRESHOLDS_API_MAX_P90_MS_ENV: ${{ parameters.THRESHOLDS_API_MAX_P90_MS_ENV }}
+                              THRESHOLDS_API_MAX_P95_MS_ENV: ${{ parameters.THRESHOLDS_API_MAX_P95_MS_ENV }}
+                          ${{ else }}: # intermediate tests will execute this configuration, which ensure the execution of all test entities
+                              SCENARIO_TYPE_ENV: perVuIterations
+                              VUS_MAX_ENV: '20'
+                              SCENARIO_PER_VU_RAMPING_SIZE: 'false'
+                              SCENARIO_PER_VU_SINGLE_ITERATION_ENV: 'false'
+                              SCENARIO_PER_VU_EXECUTIONS_ENV: '1'
+                              SCENARIO_DURATION_ENV: '2'
+                              THRESHOLDS_API_MAX_AVG_MS_ENV: '10000'
+                              THRESHOLDS_API_MAX_P90_MS_ENV: '10000'
+                              THRESHOLDS_API_MAX_P95_MS_ENV: '10000'
+
+                      displayName: Run k6 ${{k6Test}}.js on ${{ parameters.TARGET_ENV }}
+                      timeoutInMinutes: 0
+
+              - task: PublishTestResults@2
+                condition: true
+                inputs:
+                    testResultsFormat: 'JUnit'
+                    testResultsFiles: 'results/*-result.xml'
+                    searchFolder: '$(System.DefaultWorkingDirectory)'
+                    failTaskOnFailedTests: true
+              - task: PublishPipelineArtifact@1
+                displayName: 'Publishing results of k6 tests in folder: results'
+                condition: true
+                inputs:
+                    artifact: 'results'
+                    targetPath: 'results'
+                    publishLocation: 'pipeline'
