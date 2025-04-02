@@ -27,22 +27,9 @@ parameters:
       default: []
 
 jobs:
-    - ${{ if parameters.isDeployment }}:
-          deployment: ${{ parameters.name }}
-          pool:
-              name: ${{ parameters.deploymentPoolName }}
-          environment: ${{ parameters.deploymentEnvironment }}
-          strategy:
-              runOnce:
-                  deploy:
-                      steps:
-                          - checkout: self
-                          - ${{ parameters.steps }}
-      ${{ else }}:
-          job: ${{ parameters.name }}
-          steps: ${{ parameters.steps }}
-
-      displayName: ${{ parameters.displayName }}
-      timeoutInMinutes: ${{ parameters.timeoutInMinutes }}
-      continueOnError: ${{ parameters.continueOnError }}
-      dependsOn: ${{ parameters.dependsOn }}
+  - job: ${{ parameters.name }}
+    steps: ${{ parameters.steps }}
+    displayName: ${{ parameters.displayName }}
+    timeoutInMinutes: ${{ parameters.timeoutInMinutes }}
+    continueOnError: ${{ parameters.continueOnError }}
+    dependsOn: ${{ parameters.dependsOn }}
