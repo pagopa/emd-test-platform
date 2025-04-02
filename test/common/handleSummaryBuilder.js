@@ -14,7 +14,7 @@ export default (application, testName) => (data) => {
     const outputFilePrefix = `${application}_${testName}`
 
     console.log(
-        `TEST DETAILS: [Time to complete test: ${data.state.testRunDurationMs} ms, Environment target: ${CONFIG.TARGET_ENV}, Scenario test type: ${CONFIG.SCENARIOS.TYPES}, Max Number of available entities: ${CONFIG.MAX_AVAILABLE_TEST_ENTITIES_ENV}, Request processed: ${data.metrics.http_reqs.values.count}, Request OK: ${data.metrics.http_req_failed.values.fails}, ERRORS: ${data.metrics.http_req_failed.values.passes}]`
+        `TEST DETAILS: [Time to complete test: ${data.state.testRunDurationMs} ms, Environment target: ${CONFIG.TARGET_ENV}, Scenario test type: ${CONFIG.SCENARIOS.TYPES}, Request processed: ${data.metrics.http_reqs.values.count}, Request OK: ${data.metrics.http_req_failed.values.fails}, ERRORS: ${data.metrics.http_req_failed.values.passes}]`
     )
 
     if (CONFIG.SCENARIOS.TYPES.indexOf('rampingArrivalRate') > -1) {

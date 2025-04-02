@@ -37,7 +37,7 @@ parameters:
           - 'rampingGrowingArrivalRate'
 
     - name: 'MAX_AVAILABLE_TEST_ENTITIES_ENV'
-      displayName: 'Number of fiscal codes generated'
+      displayName: 'Number of test entities'
       type: number
     - name: 'VUS_MAX_ENV'
       displayName: 'Maximum number of virtual users (or max TPS), [constantArrivalRate] MaxRate'
@@ -78,10 +78,7 @@ parameters:
       displayName: 'Max P95 milliseconds applied as default to single API tests'
       type: number
       default: 1000
-    - name: 'WAIT_ONBOARDING_SECONDS'
-      displayName: 'Time in seconds to wait before wallet presence check. Useful with Payments or test which depends on onboarding (emdVerifyOnboarding)'
-      type: number
-      default: 60
+
 
 variables:
     # Python version: 3.10
@@ -132,10 +129,6 @@ jobs:
           deploymentPoolName: $(selfHostedAgentPool)
           deploymentEnvironment: '${{ upper(parameters.TARGET_ENV) }}'
           steps:
-              - task: UsePythonVersion@0
-                inputs:
-                    versionSpec: '$(pythonVersion)'
-                displayName: 'Use Python $(pythonVersion)'
 
               - task: DownloadSecureFile@1
                 name: emd_secrets
@@ -146,23 +139,6 @@ jobs:
               - script: |
                     docker info | grep -i mem
                 displayName: Display Docker Memory Info
-
-              - script: |
-                    python -m venv .venv
-                    source .venv/bin/activate
-                    python -m pip install --upgrade pip
-                workingDirectory: $(projectRoot)
-                displayName: 'Install CLI requirements'
-
-              - script: |
-                    curl -L https://github.com/pagopa/cstar-cli/archive/refs/heads/main.zip -o cstar-cli.zip
-                    unzip cstar-cli.zip
-                    cd cstar-cli-main
-                    pip install -r ../requirements.txt
-                    pip install --force-reinstall src/cstar-cli-core
-                    pip install --no-deps --force-reinstall src/cstar-cli
-                displayName: Set environment 
-             
         
               - task: Cache@2
                 inputs:
@@ -210,14 +186,6 @@ jobs:
 
                       displayName: Run k6 ${{k6Test}}.js on ${{ parameters.TARGET_ENV }}
                       timeoutInMinutes: 0
-
-              - task: PublishTestResults@2
-                condition: true
-                inputs:
-                    testResultsFormat: 'JUnit'
-                    testResultsFiles: 'results/*-result.xml'
-                    searchFolder: '$(System.DefaultWorkingDirectory)'
-                    failTaskOnFailedTests: true
               - task: PublishPipelineArtifact@1
                 displayName: 'Publishing results of k6 tests in folder: results'
                 condition: true
