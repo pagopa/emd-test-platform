@@ -57,7 +57,7 @@ export default function (data) {
                 body,
                 data.accessToken
             )
-            if (res.status != 200 || res.status != 201) {
+            if (res.status != 200 && res.status != 201) {
                 console.log(`[FUNCTION][${messageId}] FAIL`)
                 return
             }
