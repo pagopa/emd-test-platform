@@ -31,8 +31,7 @@ export function setup() {
     }
 
     const responseBody = JSON.parse(res.body);
-    const accessToken = responseBody.access_token;
-    console.log(`[SETUP]Token gotten ${accessToken}`)
+    const accessToken = responseBody.access_token;)
     return {accessToken};
   }
 
@@ -51,8 +50,6 @@ export default function (data) {
                 originId: "origindId",
                 associatedPayment: true
             }
-
-            console.log(`[FUNCTION][${messageId}] Sending message`)
             const res = sendMessage(
                 body,
                 data.accessToken
@@ -61,7 +58,6 @@ export default function (data) {
                 console.log(`[FUNCTION][${messageId}] FAIL`)
                 return
             }
-            console.log(`[FUNCTION][${messageId}] OK || NO_CHANNELS`)   
             assert(res, [statusOk()])
         })
     })
