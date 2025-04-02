@@ -139,6 +139,10 @@ jobs:
               - script: |
                     docker info | grep -i mem
                 displayName: Display Docker Memory Info
+
+              - script: |
+                  mkdir -p results
+                displayName: Results folder creation
         
               - task: Cache@2
                 inputs:
