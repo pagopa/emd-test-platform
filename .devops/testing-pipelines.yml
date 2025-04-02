@@ -161,6 +161,7 @@ jobs:
                     pip install -r ../requirements.txt
                     pip install --force-reinstall src/cstar-cli-core
                     pip install --no-deps --force-reinstall src/cstar-cli
+                    mkdir -p results
                 displayName: Set environment 
              
         
