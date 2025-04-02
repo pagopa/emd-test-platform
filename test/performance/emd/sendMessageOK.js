@@ -18,9 +18,7 @@ export const options = defaultApiOptionsBuilder(application, testName)
 
 export function setup() {
 
-    console.log('[SETUP] Getting Token...')
-
-    let res = authToken()
+   let res = authToken()
 
    let success = check(res, {
     'login riuscito': (res) => res.status === 200 
