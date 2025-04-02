@@ -31,7 +31,7 @@ export function setup() {
     }
 
     const responseBody = JSON.parse(res.body);
-    const accessToken = responseBody.access_token;)
+    const accessToken = responseBody.access_token;
     return {accessToken};
   }
 
@@ -54,10 +54,6 @@ export default function (data) {
                 body,
                 data.accessToken
             )
-            if (res.status != 200 && res.status != 201) {
-                console.log(`[FUNCTION][${messageId}] FAIL`)
-                return
-            }
             assert(res, [statusOk()])
         })
     })
