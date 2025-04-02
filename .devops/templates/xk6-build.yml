@@ -3,7 +3,7 @@ parameters:
       type: string
     - name: 'k6Version'
       type: string
-      default: v0.45.1
+      default: v0.57.0
     - name: 'xk6Extensions'
       type: string
       default: '--with github.com/szkiba/xk6-dotenv@v0.1.3'
