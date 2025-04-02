@@ -14,7 +14,7 @@ const testName = 'sendMessageOK'
 
 export const options = defaultApiOptionsBuilder(application, testName)
 
-export const handleSummary = defaultHandleSummaryBuilder(application, testName)
+//export const handleSummary = defaultHandleSummaryBuilder(application, testName)
 
 export function setup() {
 
