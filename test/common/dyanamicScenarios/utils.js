@@ -10,7 +10,7 @@ export function testEntitiesBasedScenariosParser(options) {
         .filter((scenarioName) =>
             scenarioName.startsWith(testEntitiesBasedScenarioPrefix)
         )
-        .sort((a, b) => a - b);
+        .sort((a, b) => a - b)
         .forEach((scenarioName) => {
             const singleScenario = options.scenarios[scenarioName]
             let scenarioBaseIndex = counter
