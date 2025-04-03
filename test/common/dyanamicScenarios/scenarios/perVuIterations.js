@@ -11,7 +11,7 @@ if (!CONFIG.SCENARIOS.perVuIterations.ONESHOT) {
 
     do {
         const randomVus = Math.min(
-            availableEntitiesData,
+            maxIteration,
             CONFIG.SCENARIOS.perVuIterations.RAMPING_SIZE
                 ? randomIntBetween(1, CONFIG.VIRTUAL_USERS)
                 : CONFIG.VIRTUAL_USERS
