@@ -20,14 +20,14 @@ export default (application, testName) => (data) => {
     if (CONFIG.SCENARIOS.TYPES.indexOf('rampingArrivalRate') > -1) {
         printRampingConfig(
             'rampingArrivalRate',
-            rampingArrivalRate.stages
+            rampingArrivalRate.rampingArrivalRate.stages 
         )
     }
 
     if (CONFIG.SCENARIOS.TYPES.indexOf('rampingGrowingArrivalRate') > -1) {
         printRampingConfig(
             'rampingGrowingArrivalRate',
-             rampingGrowingArrivalRate.stages
+            rampingGrowingArrivalRate.rampingArrivalRate.stages 
         )
     }
 
@@ -51,12 +51,13 @@ export default (application, testName) => (data) => {
 }
 
 function printRampingConfig(scenarioName, customStages) {
+    console.log(customStages);
     let stringRamping = `[${scenarioName}] Ramping iterations for stage : { `
 
     for (let i = 0; i < customStages.length - 1; i++) {
         stringRamping += `${customStages[i].target}, `
     }
     console.log(
-        stringRamping + `${customStages[customStages.length - 1].target} } `
+        "END" + stringRamping + `${customStages[customStages.length - 1].target} } `
     )
 }
