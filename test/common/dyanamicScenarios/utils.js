@@ -1,7 +1,5 @@
-import exec from 'k6/execution'
-import { scenario } from 'k6/execution'
+import { scenario, exec } from 'k6/execution'
 import { coalesce } from '../utils.js'
-import { CONFIG } from './envVars.js'
 
 export const testEntitiesBasedScenarioPrefix = 'scenario_'
 export function testEntitiesBasedScenariosParser(options) {
@@ -12,7 +10,7 @@ export function testEntitiesBasedScenariosParser(options) {
         .filter((scenarioName) =>
             scenarioName.startsWith(testEntitiesBasedScenarioPrefix)
         )
-        .sort()
+        .sort((a, b) => a - b);
         .forEach((scenarioName) => {
             const singleScenario = options.scenarios[scenarioName]
             let scenarioBaseIndex = counter
@@ -42,9 +40,6 @@ export function getScenarioTestEntity(testEntities) {
 }
 
 export function logResult(opName, result, expectedHttpState) {
-    if (CONFIG.DUMP_REQUESTS) {
-        console.log(opName, JSON.stringify(result, null, 2))
-    }
     if (expectedHttpState && result.status != expectedHttpState) {
         logErrorResult(opName, result, false)
     }

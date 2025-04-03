@@ -7,7 +7,7 @@ const scenarios = {}
 if (!CONFIG.SCENARIOS.perVuIterations.ONESHOT) {
     let counter = 0
     let startTime = 0
-    let availableEntitiesData = CONFIG.MAX_AVAILABLE_TEST_ENTITIES_ENV
+    let maxIteration = CONFIG.MAX_ITERATION_ENV
 
     do {
         const randomVus = Math.min(
@@ -22,8 +22,8 @@ if (!CONFIG.SCENARIOS.perVuIterations.ONESHOT) {
 
         startTime = startTime + CONFIG.SCENARIOS.perVuIterations.DURATION
         counter++
-        availableEntitiesData -= randomVus
-    } while (availableEntitiesData > 0)
+        maxIteration -= randomVus
+    } while (maxIteration > 0)
 } else {
     scenarios['perVuIterations'] = buildPerVuIteration(0, CONFIG.VIRTUAL_USERS)
 }

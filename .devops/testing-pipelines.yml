@@ -6,6 +6,7 @@ pool:
   vmImage: ubuntu-22.04
 
 parameters:
+
   - name: 'TARGET_ENV'
     displayName: 'Target Environment'
     type: string
@@ -31,28 +32,33 @@ parameters:
       - 'rampingArrivalRate'
       - 'rampingGrowingArrivalRate'
 
-  - name: 'MAX_AVAILABLE_TEST_ENTITIES_ENV'
-    displayName: 'Number of test entities'
-    type: number
+
   - name: 'VUS_MAX_ENV'
-    displayName: 'Maximum number of virtual users (or max TPS), [constantArrivalRate] MaxRate'
+    displayName: 'Maximum number of virtual users'
     type: number
 
   - name: 'SCENARIO_PER_VU_SINGLE_ITERATION_ENV'
-    displayName: '[perVuIterations] Run one single scenario, otherwise it will run multiple iteration until consume all the fiscal codes'
+    displayName: '[perVuIterations] Run one single scenario, otherwise it will run multiple iteration'
     type: string
     default: 'false'
-  - name: 'SCENARIO_PER_VU_EXECUTIONS_ENV'
-    displayName: '[perVuIterations] Number of execution per iteration'
+
+  - name: 'MAX_ITERATION_ENV'
+    displayName: '[perVuIterations] Number of iteration for multiple stage'
     type: number
     default: 1
+
+  - name: 'SCENARIO_PER_VU_EXECUTIONS_ENV'
+    displayName: '[perVuIterations] Number of execution for iteration'
+    type: number
+    default: 1
+
   - name: 'SCENARIO_DURATION_ENV'
     displayName: '[perVuIterations][constantArrivalRate] Duration in seconds of the scenario'
     type: number
     default: 10
 
   - name: 'SCENARIO_TIME_UNIT_ENV'
-    displayName: '[constantArrivalRate][rampingArrivalRate][rampingGrowingArrivalRate] timeUnit'
+    displayName: '[constantArrivalRate][rampingArrivalRate][rampingGrowingArrivalRate] Time units for arrival rate'
     type: number
     default: 1
 
@@ -65,12 +71,19 @@ parameters:
     displayName: 'Max AVG milliseconds applied as default to single API tests'
     type: number
     default: 500
+
   - name: 'THRESHOLDS_API_MAX_P90_MS_ENV'
     displayName: 'Max P90 milliseconds applied as default to single API tests'
     type: number
     default: 800
+
   - name: 'THRESHOLDS_API_MAX_P95_MS_ENV'
     displayName: 'Max P95 milliseconds applied as default to single API tests'
+    type: number
+    default: 1000
+
+  - name: 'THRESHOLDS_API_MAX_FAILED_REQ_RATE_ENV'
+    displayName: 'Max failed request rate'
     type: number
     default: 1000
 
@@ -146,17 +159,10 @@ jobs:
               env:
                 RESULTS_DIR: '.'
                 CSV_DELIMITER: ';'
-                ENABLE_FILE_WRITING: true
-
                 TARGET_ENV: ${{ parameters.TARGET_ENV }}
-                SCRIPT_ENV: ${{ parameters.SCRIPT }}
-                MAX_AVAILABLE_TEST_ENTITIES_ENV: ${{ parameters.MAX_AVAILABLE_TEST_ENTITIES_ENV }}
-
+                MAX_ITERATION_ENV: ${{ parameters.MAX_ITERATION_ENV }}
                 SCENARIO_TIME_UNIT_ENV: ${{ parameters.SCENARIO_TIME_UNIT_ENV }}
                 SCENARIO_RAMP_STAGE_NUMBER_ENV: ${{ parameters.SCENARIO_RAMP_STAGE_NUMBER_ENV }}
-
-                WAIT_ONBOARDING_SECONDS: ${{ parameters.WAIT_ONBOARDING_SECONDS }}
-
                 ${{ if eq(k6Test, parameters.SCRIPT) }}:
                   SCENARIO_TYPE_ENV: ${{ parameters.SCENARIO_TYPE_ENV }}
                   VUS_MAX_ENV: ${{ parameters.VUS_MAX_ENV }}
@@ -167,6 +173,7 @@ jobs:
                   THRESHOLDS_API_MAX_AVG_MS_ENV: ${{ parameters.THRESHOLDS_API_MAX_AVG_MS_ENV }}
                   THRESHOLDS_API_MAX_P90_MS_ENV: ${{ parameters.THRESHOLDS_API_MAX_P90_MS_ENV }}
                   THRESHOLDS_API_MAX_P95_MS_ENV: ${{ parameters.THRESHOLDS_API_MAX_P95_MS_ENV }}
+                  THRESHOLDS_API_MAX_FAILED_REQ_RATE_ENV:  ${{ parameters.THRESHOLDS_API_MAX_P95_MS_ENV }}
                 ${{ else }}: # intermediate tests will execute this configuration, which ensure the execution of all test entities
                   SCENARIO_TYPE_ENV: perVuIterations
                   VUS_MAX_ENV: '20'
@@ -177,7 +184,7 @@ jobs:
                   THRESHOLDS_API_MAX_AVG_MS_ENV: '10000'
                   THRESHOLDS_API_MAX_P90_MS_ENV: '10000'
                   THRESHOLDS_API_MAX_P95_MS_ENV: '10000'
-
+                  THRESHOLDS_API_MAX_FAILED_REQ_RATE_ENV: '0.05'
               displayName: Run k6 ${{k6Test}}.js on ${{ parameters.TARGET_ENV }}
               timeoutInMinutes: 0
         - task: PublishPipelineArtifact@1

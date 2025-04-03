@@ -10,15 +10,10 @@ const rampStageNumber = Math.max(
 
 export const CONFIG = {
     TARGET_ENV: __ENV.TARGET_ENV,
-    SCRIPT_ENV: __ENV.SCRIPT_ENV,
-    DUMP_REQUESTS: __ENV.REQ_DUMP && __ENV.REQ_DUMP.toLowerCase() === 'true',
-    ENABLE_FILE_WRITING:
-        __ENV.ENABLE_FILE_WRITING &&
-        __ENV.ENABLE_FILE_WRITING.toLowerCase() === 'true',
-
     VIRTUAL_USERS: vu,
-    MAX_AVAILABLE_TEST_ENTITIES_ENV: coalesce(
-        __ENV.MAX_AVAILABLE_TEST_ENTITIES_ENV,
+
+    MAX_ITERATION_ENV: coalesce(
+        __ENV.MAX_ITERATION_ENV,
         vu
     ),
 
