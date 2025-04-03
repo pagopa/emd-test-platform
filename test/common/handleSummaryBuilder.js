@@ -51,13 +51,10 @@ export default (application, testName) => (data) => {
 }
 
 function printRampingConfig(scenarioName, customStages) {
-    console.log(customStages);
     let stringRamping = `[${scenarioName}] Ramping iterations for stage : { `
 
     for (let i = 0; i < customStages.length - 1; i++) {
         stringRamping += `${customStages[i].target}, `
     }
-    console.log(
-        "END" + stringRamping + `${customStages[customStages.length - 1].target} } `
-    )
+
 }
