@@ -27,7 +27,7 @@ export default (application, testName) => (data) => {
     if (CONFIG.SCENARIOS.TYPES.indexOf('rampingGrowingArrivalRate') > -1) {
         printRampingConfig(
             'rampingGrowingArrivalRate',
-            rampingGrowingArrivalRate.rampingArrivalRate.stages 
+            rampingGrowingArrivalRate.rampingGrowingArrivalRate.stages
         )
     }
 
