@@ -6,6 +6,7 @@ import { CONFIG } from '../envVars.js'
 
 export const scenarios = Object.assign(
     {},
+    soakTest,
     perVuIterations,
     constantArrivalRate,
     rampingArrivalRate,
@@ -18,8 +19,8 @@ export default function buildScenarios() {
             CONFIG.SCENARIOS.TYPES.map((t) => [t, scenarios[t]])
                 .filter(([_, s]) => s)
                 .concat(
-                    CONFIG.SCENARIOS.TYPES.indexOf('perVuIterations') > -1
-                        ? Object.entries(perVuIterations)
+                    CONFIG.SCENARIOS.TYPES.indexOf('soakTest') > -1
+                        ? Object.entries(soakTest)
                         : []
                 )
         )

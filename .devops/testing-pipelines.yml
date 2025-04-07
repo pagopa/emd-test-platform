@@ -25,8 +25,9 @@ parameters:
   - name: 'SCENARIO_TYPE_ENV'
     displayName: 'Scenario type'
     type: string
-    default: 'perVuIterations'
+    default: 'soakTest'
     values:
+      - 'soakTest'
       - 'perVuIterations'
       - 'constantArrivalRate'
       - 'rampingArrivalRate'

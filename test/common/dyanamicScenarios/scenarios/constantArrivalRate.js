@@ -10,3 +10,4 @@ export default {
         maxVUs: Math.min(CONFIG.VIRTUAL_USERS * 2, 500),
     },
 }
+
