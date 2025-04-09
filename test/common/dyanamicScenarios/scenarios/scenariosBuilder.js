@@ -2,6 +2,7 @@ import rampingArrivalRate from './rampingArrivalRate.js'
 import rampingGrowingArrivalRate from './rampingGrowingArrivalRate.js'
 import constantArrivalRate from './constantArrivalRate.js'
 import perVuIterations from './perVuIterations.js'
+import soakTest from './soakTest.js'
 import { CONFIG } from '../envVars.js'
 
 export const scenarios = Object.assign(

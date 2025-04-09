@@ -1,6 +1,8 @@
 import { randomString, randomIntBetween, } from 'https://jslib.k6.io/k6-utils/1.1.0/index.js'
 import papaparse from 'https://jslib.k6.io/papaparse/5.1.1/index.js'
 import exec from 'k6/execution'
+import { randomBytes } from 'crypto';
+
 
 export function randomFiscalCode() {
     '^([A-Za-z]{6}[0-9lmnpqrstuvLMNPQRSTUV]{2}[abcdehlmprstABCDEHLMPRST]{1}[0-9lmnpqrstuvLMNPQRSTUV]{2}[A-Za-z]{1}[0-9lmnpqrstuvLMNPQRSTUV]{3}[A-Za-z]{1})$'
@@ -9,12 +11,12 @@ export function randomFiscalCode() {
     const randDate = randomDate(new Date(1970, 0, 1), new Date(2000, 0, 1))
     const birth_y = randDate.getFullYear().toString().substring(2)
     const birth_m = getFiscalCodeMonth(randDate.getMonth() + 1)
-    const isFemale = Math.random() < 0.5
+    const isFemale = randomBytes(1)[0] < 0.5
     let birth_d = (randDate.getDay() + (isFemale ? 40 : 0) + 1).toString()
     birth_d = birth_d.length == 1 ? `0${birth_d}` : birth_d
     const final = [
         randomString(1),
-        (100 + Math.floor(Math.random() * 899)).toString(),
+        (100 + Math.floor(randomBytes(1)[0] * 899)).toString(),
         randomString(1),
     ].join('')
     return [name, birth_y, birth_m, birth_d, final].join('')
@@ -22,7 +24,7 @@ export function randomFiscalCode() {
 
 export function randomDate(start, end) {
     return new Date(
-        start.getTime() + Math.random() * (end.getTime() - start.getTime())
+        start.getTime() + randomBytes(1)[0] * (end.getTime() - start.getTime())
     )
 }
 
@@ -129,11 +131,14 @@ export function abort(description) {
     }
 }
 
+const crypto = require('crypto');
+
 export function generateUUID() {
     return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
-    var r = Math.random() * 16 | 0,
-    v = c == 'x' ? r : (r & 0x3 | 0x8);
-    return v.toString(16);
+        let r = randomBytes(1)[0] % 16;
+        let v = c == 'x' ? r : (r & 0x3 | 0x8);
+        return v.toString(16);
     });
 }
+
 
