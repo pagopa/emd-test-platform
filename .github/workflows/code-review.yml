@@ -45,8 +45,6 @@ jobs:
             -Dsonar.host.url=https://sonarcloud.io \
             -Dsonar.token=${{ secrets.SONAR_TOKEN }} \
             -Dsonar.javascript.lcov.reportPaths=coverage/lcov.info \
-            -Dsonar.sources=test
-            -Dsonar.tests=jest
 
       - name: Fetch all branches
         run: git fetch --all
