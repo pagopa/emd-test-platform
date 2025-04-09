@@ -1,7 +1,7 @@
 import { coalesce } from '../utils.js'
 import dotenv from 'k6/x/dotenv'
 
-const vu = parseInt(coalesce(__ENV.VUS_MAX_ENV, 3))
+const vu = parseInt(coalesce(__ENV.VUS_MAX_ENV, 3),10)
 
 const rampStageNumber = Math.max(
     parseInt(coalesce(__ENV.SCENARIO_RAMP_STAGE_NUMBER_ENV, 3), 10),
@@ -47,7 +47,7 @@ export const CONFIG = {
                     parseInt(
                         coalesce(
                             __ENV.SCENARIO_RAMP_GROWING_RAMP_BUILDING_VU_POOL,
-                            Math.ceil((vu * (rampStageNumber - 1)) / 2)
+                            Math.ceil((vu * (rampStageNumber - 1)) / 2),10
                         )
                     ),
                     Math.ceil((vu * (rampStageNumber - 1)) / 2)
