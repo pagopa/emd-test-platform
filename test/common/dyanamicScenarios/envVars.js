@@ -1,6 +1,8 @@
 import { coalesce } from '../utils.js'
 import dotenv from 'k6/x/dotenv'
 
+
+// NOSONAR
 const vu = parseInt(coalesce(__ENV.VUS_MAX_ENV, 3),10)
 
 const rampStageNumber = Math.max(
