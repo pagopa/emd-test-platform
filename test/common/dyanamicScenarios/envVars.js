@@ -1,9 +1,7 @@
 import { coalesce } from '../utils.js'
 import dotenv from 'k6/x/dotenv'
 
-// Suppress SonarQube issue javascript:S3827 for the following block
-// NOSONAR START
-const vu = parseInt(coalesce(__ENV.VUS_MAX_ENV, 3),10)
+const vu = parseInt(coalesce(__ENV.VUS_MAX_ENV, 3),10)// NOSONAR
 
 const rampStageNumber = Math.max(
     parseInt(coalesce(__ENV.SCENARIO_RAMP_STAGE_NUMBER_ENV, 3), 10),
@@ -75,5 +73,5 @@ export const CONFIG = {
 
     AUTH_KEYS: dotenv.parse(open(__ENV.SECRETS_FILE_PATH))
 }
-// NOSONAR END
+
 
