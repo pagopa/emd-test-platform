@@ -16,6 +16,7 @@ steps:
         sonar.projectKey=$(SONARCLOUD_PROJECT_KEY)
         sonar.projectName=$(SONARCLOUD_PROJECT_NAME)
         sonar.sources='./test'
+
   - task: SonarCloudPublish@1
     inputs:
       pollingTimeoutSec: '300'
