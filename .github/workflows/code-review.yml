@@ -17,16 +17,20 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
       - name: SonarCloud Scan
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          mvn sonar:sonar \
+          sonar-scanner \
             -Dsonar.projectKey=${{ vars.SONARCLOUD_PROJECT_KEY }} \
             -Dsonar.organization=${{ vars.SONARCLOUD_ORG }} \
             -Dsonar.host.url=https://sonarcloud.io \
-            -Dsonar.token=${{ secrets.SONAR_TOKEN }} \
+            -Dsonar.login=${{ secrets.SONAR_TOKEN }} \
             -Dsonar.sources=./test
+
       - name: Fetch all branches
         run: git fetch --all
