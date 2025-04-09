@@ -32,11 +32,12 @@ jobs:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          .SONARCLOUD_PROJECT_KEY }} \
-             -Dsonar.organization=${{ vars.SONARCLOUD_ORG }} \
-             -Dsonar.host.url=https://sonarcloud.io \
-             -Dsonar.login=${{ secrets.SONAR_TOKEN }} \
-             -Dsonar.sources=./test
+          sonar-scanner \
+            -Dsonar.projectKey=${{ vars.SONARCLOUD_PROJECT_KEY }} \
+            -Dsonar.organization=${{ vars.SONARCLOUD_ORG }} \
+            -Dsonar.host.url=https://sonarcloud.io \
+            -Dsonar.login=${{ secrets.SONAR_TOKEN }} \
+            -Dsonar.sources=./test
 
       - name: Fetch all branches
         run: git fetch --all
