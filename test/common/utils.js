@@ -57,7 +57,7 @@ export function getRelativePathToRootFolder() {
     return '../..'
 }
 
-export const csvDelimiter = coalesce(__ENV.CSV_DELIMITER, '')
+export const csvDelimiter = coalesce(__ENV.CSV_DELIMITER, '') // NOSONAR
 
 export function getCsvData(filePath, hasHeader) {
     if (hasHeader === undefined) {
