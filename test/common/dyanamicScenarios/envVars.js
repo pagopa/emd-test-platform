@@ -45,10 +45,8 @@ export const CONFIG = {
             rampingGrowingArrivalRate: {
                 RAMP_BUILDING_VU_POOL: Math.min(
                     parseInt(
-                        coalesce(
-                            __ENV.SCENARIO_RAMP_GROWING_RAMP_BUILDING_VU_POOL,
-                            Math.ceil((vu * (rampStageNumber - 1)) / 2),10
-                        )
+                        coalesce(Math.ceil((vu * (rampStageNumber - 1)) / 2)
+                        ) ,10
                     ),
                     Math.ceil((vu * (rampStageNumber - 1)) / 2)
                 ),
