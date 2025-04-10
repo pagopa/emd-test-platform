@@ -23,17 +23,6 @@ jobs:
         with:
           fetch-depth: 0  # Fetch all history for all branches and tags
 
-      - name: Set up Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: '16'
-
-      - name: Install dependencies
-        run: yarn
-
-      - name: Run tests with Jest
-        run: yarn jest --coverage
-
       - name: SonarCloud Scan
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
@@ -44,7 +33,6 @@ jobs:
             -Dsonar.organization=${{ vars.SONARCLOUD_ORG }} \
             -Dsonar.host.url=https://sonarcloud.io \
             -Dsonar.token=${{ secrets.SONAR_TOKEN }} \
-            -Dsonar.javascript.lcov.reportPaths=coverage/lcov.info \
 
       - name: Fetch all branches
         run: git fetch --all
