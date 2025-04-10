@@ -1,0 +1,14 @@
+{
+    "dev_emd": {
+        "baseUrl": "https://api-emd.dev.cstar.pagopa.it"
+    },
+    "uat_emd": {
+        "baseUrl": "https://api-emd.uat.cstar.pagopa.it"
+    },
+    "dev_mil": {
+        "baseUrl": "https://api-mcshared.dev.cstar.pagopa.it"
+    },
+    "uat_mil": {
+        "baseUrl": "https://api-mcshared.uat.cstar.pagopa.it"
+    }
+}
