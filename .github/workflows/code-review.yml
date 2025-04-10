@@ -11,7 +11,6 @@ on:
       - edited
       - synchronize
 
-
 jobs:
   sonarcloud:
     name: SonarCloud Analysis
@@ -38,6 +37,7 @@ jobs:
             -Dsonar.organization=${{ vars.SONARCLOUD_ORG }} \
             -Dsonar.host.url=https://sonarcloud.io \
             -Dsonar.token=${{ secrets.SONAR_TOKEN }} \
+            -Dsonar.coverage.exclusions=**/*.js
 
       - name: Fetch all branches
         run: git fetch --all
